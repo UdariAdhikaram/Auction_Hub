@@ -17,18 +17,18 @@ return new class extends Migration
         $table->foreignId('category_id')->constrained()->onDelete('cascade');
         $table->string('title');
         $table->text('description');
-        $table->timestamp('starts_at');
-        $table->timestamp('ends_at');
+        $table->timestamp('starts_at')->nullable();
+        $table->timestamp('ends_at')->nullable();
         $table->decimal('reserve_price', 12, 2);
-        $table->decimal('current_price', 12, 2);
+        $table->decimal('starting_price', 12, 2)->nullable();
+        $table->decimal('current_price', 12, 2)->nullable();
         $table->decimal('bid_increment', 12, 2);
         $table->enum('status', ['draft', 'scheduled', 'live', 'ended', 'cancelled']);
-
-        // Virtual column for is_live (computed in SQL)
-        $table->virtualAs(
-            "CASE WHEN status = 'live' AND NOW() BETWEEN starts_at AND ends_at THEN 1 ELSE 0 END",
-            'is_live'
-        );
+        // Derived/computed columns like `is_live` or generated `current_price`
+        // can be managed at the application/model level or defined using
+        // DB-specific generated columns. For compatibility and simplicity
+        // we store `is_live` as a boolean and update it in application logic.
+        $table->boolean('is_live')->default(false);
 
         $table->timestamps();
     });
