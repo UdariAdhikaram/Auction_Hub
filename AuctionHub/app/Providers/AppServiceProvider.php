@@ -1,15 +1,9 @@
-<?php
+use App\Services\PaymentProcessor;
+use App\Services\StripePaymentProcessor;
 
-namespace App\Providers;
-
-use Illuminate\Support\ServiceProvider;
-use App\Models\Bid;
-use App\Observers\BidObserver;
-
-class AppServiceProvider extends ServiceProvider
+public function register(): void
 {
-    public function boot(): void
-    {
-        Bid::observe(BidObserver::class);
-    }
+    $this->app->when(AuctionController::class)
+        ->needs(PaymentProcessor::class)
+        ->give(StripePaymentProcessor::class);
 }
