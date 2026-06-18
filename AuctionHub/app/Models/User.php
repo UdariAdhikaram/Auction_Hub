@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
@@ -53,7 +54,7 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
-    // Scopes
+     // Scopes
     public function scopeWithActiveBidCount($query)
     {
         return $query->withCount(['bids' => function ($query) {
@@ -62,4 +63,28 @@ class User extends Authenticatable
             });
         }]);
     }
+
+    /**
+     * Get the token abilities based on user role
+     */
+    public function getTokenAbilities(): array
+    {
+        return match ($this->role) {
+            'admin' => ['admin:*', 'bid:place', 'auction:manage'],
+            'vendor' => ['auction:manage', 'bid:place'],
+            'bidder' => ['bid:place'],
+            default => [],
+        };
+    }
+
+     /**
+     * Check if user is a verified vendor
+     */
+    public function isVerifiedVendor(): bool
+    {
+        return $this->role === 'vendor'
+            && $this->vendor
+            && $this->vendor->approved_at !== null;
+    }
+
 }
