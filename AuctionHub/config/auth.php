@@ -42,6 +42,17 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+    'api' => [
+        'driver' => 'sanctum',
+        'provider' => 'users',
+        ],
+
+    // Add vendor guard
+    'vendor' => [
+        'driver' => 'sanctum',
+        'provider' => 'vendors',
+        ],
     ],
 
     /*
@@ -62,16 +73,17 @@ return [
     */
 
     'providers' => [
-        'users' => [
-            'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', User::class),
-        ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+    'users' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\User::class,
     ],
+
+    // Add vendor provider
+    'vendors' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\User::class,
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------
